@@ -1,15 +1,23 @@
 # Processing-SOM
-A visual SOM programmed in processing. This was just a simple project to get back into programming in Processing while also understanding SOMs for research purposes. http://jjguy.com/som/ was used for the initial concept, but I don't believe I used any code from anywhere. The goal was to make as much of this from scratch as possible. I believe the above website also links to another SOM website that had some useful insights. 
-
-Project is done, but I may add in scalability testing for fun. I havent drawn graphs in Processing yet, so that seems like a fun project.
-
-Runtime? Glad you asked. This is the ***fastest*** som out there at O(N^2). ***slaps som***    This bad boy can fit *sooooo* many N's inside of its O(). /s
+A visual SOM programmed in processing. This was just a simple project to get back into programming in Processing while also understanding SOMs for research purposes. http://jjguy.com/som/ was used for the initial concept. The goal was to make as much of this from scratch as possible. I believe the above website also links to another SOM website that had some useful insights. The SOM includes visualizations for a RGB dataset and a U-matrix to visualize the distance between nodes.
 
 # Dependencies
 Processing 4
 
+
+
 # How to Run
+Download Processing 4 from https://processing.org/download
+Download the SOM folder from this github page
+Open Processing
+Open the som.pde file
 Tapping '1' will cause the SOM to run
 Pressing 'r' will reset the SOM and training colors
 
-If you want the SOM to be bigger or use more training colors, the variables are the top of the 'som.pde' file. The visuals for the training colors only work up to about 30 colors. You can do more, but you won't be able to view more than 30 prior to running.
+To modify parameters, open the 'som.pde' file. At the top there are parameters for:
+n x m grid of nodes: These must be divisible by 10. (n = 400, m = 400 equates to a 40x40 SOM)
+iterations: total number of training iterations.
+num_training_colors: total number of training colors (30 is the max that can be seen at the bottom of the GUI. You can do more, but you won't be able to see them.)
+learning_rate: how aggressively we change the SOM node values.
+
+There are a couple of other values that you can change like the initial neighborhood radius and how it reduces with respect to iterations.
