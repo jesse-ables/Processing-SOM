@@ -17,5 +17,15 @@ class Cell{
    this.g = this.g - (rate * (this.g - other_cell.g));
    this.b = this.b - (rate * (this.b - other_cell.b));
  }
+
+ float get_euclidean_distance(Cell other_cell){
+  float distance = 0;
+
+  distance += pow(this.r - other_cell.r, 2);
+  distance += pow(this.g - other_cell.g, 2);
+  distance += pow(this.b - other_cell.b, 2);
+
+  return sqrt(distance);
+ }
  
 }

@@ -44,8 +44,8 @@ void draw_training_colors(){
   int ypad = m+5;
   // create boxes with the training colors at the bottom
   for(int i = 0; i < ceil(num_training_colors/10)+1; i++){
-    for(int j = i*10; j < pcpColors.length && j < i*10+10;j++){
-       fill(pcpColors[j]);
+    for(int j = i*10; j < training_colors.length && j < i*10+10;j++){
+       fill(training_colors[j]);
        stroke(255);
        rect(xpad, ypad, 10, 10);
        xpad += 15;
@@ -60,30 +60,58 @@ void draw_bmu_locations(){
   for(int i = 0; i < bmu_locations.length; i++){
     int x_loc = bmu_locations[i][0] * 10;
     int y_loc = bmu_locations[i][1] * 10;
+
+    int x_loc_u_matrix = bmu_locations[i][0] * 10 + n + 10;
     
     stroke(255);
-    fill(pcpColors[i]);
+    fill(training_colors[i]);
     
     // up left
     if(x_loc >= 20 && y_loc >= 20){
       line(x_loc + 5, y_loc + 5, x_loc, y_loc);
       rect(x_loc - 15, y_loc - 15, 15,15);
+
+      line(x_loc_u_matrix + 5, y_loc + 5, x_loc_u_matrix, y_loc);
+      rect(x_loc_u_matrix - 15, y_loc - 15, 15,15);
     }
     // up right
     else if(x_loc < 20 && y_loc > 20){
       line(x_loc + 5, y_loc + 5, x_loc + 10, y_loc);
       rect(x_loc + 10, y_loc - 15, 15,15);
+
+      line(x_loc_u_matrix + 5, y_loc + 5, x_loc_u_matrix + 10, y_loc);
+      rect(x_loc_u_matrix + 10, y_loc - 15, 15,15);
     }
     // down right
     else if(x_loc < 20 && y_loc < 20){
       line(x_loc + 5, y_loc + 5, x_loc + 10, y_loc+10);
       rect(x_loc + 10, y_loc + 10, 15,15);
+
+      line(x_loc_u_matrix + 5, y_loc + 5, x_loc_u_matrix + 10, y_loc+10);
+      rect(x_loc_u_matrix + 10, y_loc + 10, 15,15);
     }
     // down left
     else{
       line(x_loc + 5, y_loc + 5, x_loc, y_loc + 10);
       rect(x_loc - 15, y_loc + 10, 15,15);
+
+      line(x_loc_u_matrix + 5, y_loc + 5, x_loc_u_matrix, y_loc + 10);
+      rect(x_loc_u_matrix - 15, y_loc + 10, 15,15);
     }
   }
   
+}
+
+
+void draw_u_matrix(){
+  rect(n+10,0,n,m);
+  stroke(0);
+  for(int i = 0; i < n; i = i + 10){
+    for(int j = 0; j < m; j = j + 10){
+     fill(u_matrix_values[i/10][j/10] * 255);
+     stroke(0);
+     rect(i+n+10,j,10,10);
+    }
+  }
+
 }
