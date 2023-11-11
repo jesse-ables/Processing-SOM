@@ -15,6 +15,7 @@ Processing 4
 - Open the som.pde file
 - Tapping '1' will cause the SOM to run
 - Pressing 'r' will reset the SOM and training colors
+- Tapping 'b' will toggle the BMU indicators
 
 To modify parameters, open the 'som.pde' file. At the top there are parameters for:
 - n x m grid of nodes: These must be divisible by 10. (n = 400, m = 400 equates to a 40x40 SOM)
