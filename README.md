@@ -1,5 +1,5 @@
 # Processing-SOM
-A visual SOM programmed in processing. This was just a simple project to get back into programming in Processing while also understanding SOMs for research purposes. http://jjguy.com/som/ was used for the initial concept. The goal was to make as much of this from scratch as possible. I believe the above website also links to another SOM website that had some useful insights. The SOM includes visualizations for a RGB dataset and a U-matrix to visualize the distance between nodes.
+A visual SOM programmed in processing. This is not a generalized SOM algorithm. This was just a simple project to get back into programming in Processing while also understanding SOMs for research purposes. http://jjguy.com/som/ was used for the initial concept. The goal was to make as much of this from scratch as possible. I believe the above website also links to another SOM website that had some useful insights. The SOM includes visualizations for a RGB dataset and a U-matrix to visualize the distance between nodes.
 
 # Dependencies
 Processing 4
