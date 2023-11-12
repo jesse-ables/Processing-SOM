@@ -113,7 +113,7 @@ void calc_u_matrix_values(){
       total_distance += som[i/10][j/10].get_euclidean_distance(som[(i)/10][(j+10)/10]); // down
       total_distance += som[i/10][j/10].get_euclidean_distance(som[(i+10)/10][(j+10)/10]); // down right
 
-      u_matrix_values[i/10][j/10] = total_distance;
+      u_matrix_values[i/10][j/10] = total_distance/8;
 
     }
   }
@@ -129,7 +129,7 @@ void calc_u_matrix_values(){
     total_distance += som[i/10][j/10].get_euclidean_distance(som[(i)/10][(j+10)/10]); // down
     total_distance += som[i/10][j/10].get_euclidean_distance(som[(i+10)/10][(j+10)/10]); // down right
 
-    u_matrix_values[i/10][j/10] = total_distance;
+    u_matrix_values[i/10][j/10] = total_distance/5;
   }
 
     // calculate the bottom nodes excluding corners
@@ -143,7 +143,7 @@ void calc_u_matrix_values(){
     total_distance += som[i/10][j/10].get_euclidean_distance(som[(i-10)/10][(j)/10]); // left
     total_distance += som[i/10][j/10].get_euclidean_distance(som[(i+10)/10][(j)/10]); // right
 
-    u_matrix_values[i/10][j/10] = total_distance;
+    u_matrix_values[i/10][j/10] = total_distance/5;
   }
 
   // calculate the left nodes excluding corners
@@ -158,7 +158,7 @@ void calc_u_matrix_values(){
     total_distance += som[i/10][j/10].get_euclidean_distance(som[(i+10)/10][(j+10)/10]); // down right
     
 
-    u_matrix_values[i/10][j/10] = total_distance;
+    u_matrix_values[i/10][j/10] = total_distance/5;
   }
 
   // calculate the right nodes excluding corners
@@ -172,7 +172,7 @@ void calc_u_matrix_values(){
     total_distance += som[i/10][j/10].get_euclidean_distance(som[(i-10)/10][(j+10)/10]); // down left
     total_distance += som[i/10][j/10].get_euclidean_distance(som[(i)/10][(j+10)/10]); // down
     
-    u_matrix_values[i/10][j/10] = total_distance;
+    u_matrix_values[i/10][j/10] = total_distance/5;
   }
 
   // calculate the top left node
@@ -184,7 +184,7 @@ void calc_u_matrix_values(){
   total_distance += som[i/10][j/10].get_euclidean_distance(som[(i)/10][(j+10)/10]); // down
   total_distance += som[i/10][j/10].get_euclidean_distance(som[(i+10)/10][(j+10)/10]); // down right
 
-  u_matrix_values[i/10][j/10] = total_distance;
+  u_matrix_values[i/10][j/10] = total_distance/3;
 
   // calculate the top right node
   i = n-10;
@@ -195,7 +195,7 @@ void calc_u_matrix_values(){
   total_distance += som[i/10][j/10].get_euclidean_distance(som[(i-10)/10][(j+10)/10]); // down left
   total_distance += som[i/10][j/10].get_euclidean_distance(som[(i)/10][(j+10)/10]); // down
 
-  u_matrix_values[i/10][j/10] = total_distance;
+  u_matrix_values[i/10][j/10] = total_distance/3;
 
   // calculate the bottom left node
   i = 0;
@@ -206,7 +206,7 @@ void calc_u_matrix_values(){
   total_distance += som[i/10][j/10].get_euclidean_distance(som[(i+10)/10][(j-10)/10]); // up right
   total_distance += som[i/10][j/10].get_euclidean_distance(som[(i+10)/10][(j)/10]); // right
 
-  u_matrix_values[i/10][j/10] = total_distance;
+  u_matrix_values[i/10][j/10] = total_distance/3;
 
   // calculate bottom right node
   i = n-10;
@@ -217,7 +217,28 @@ void calc_u_matrix_values(){
   total_distance += som[i/10][j/10].get_euclidean_distance(som[(i)/10][(j-10)/10]); // up
   total_distance += som[i/10][j/10].get_euclidean_distance(som[(i-10)/10][(j)/10]); // left
 
-  u_matrix_values[i/10][j/10] = total_distance;
+  u_matrix_values[i/10][j/10] = total_distance/3;
+
+
+  // lets normalize the values
+  float x_min = u_matrix_values[0][0];
+  float x_max = u_matrix_values[0][0];
+  for(int i1 = 0; i1 < n; i1 = i1 + 10){
+    for(int j1 = 0; j1 < m; j1 = j1 + 10){
+     if (u_matrix_values[i1/10][j1/10] < x_min)
+     x_min = u_matrix_values[i1/10][j1/10];
+
+     if (u_matrix_values[i1/10][j1/10] > x_max)
+     x_max = u_matrix_values[i1/10][j1/10];
+    }
+  }
+
+  // change the values in the matrix
+  for(int i1 = 0; i1 < n; i1 = i1 + 10){
+    for(int j1 = 0; j1 < m; j1 = j1 + 10){
+     u_matrix_values[i1/10][j1/10] = (u_matrix_values[i1/10][j1/10] - x_min)/(x_max-x_min);
+    }
+  }
 }
 
 void reset(){
@@ -275,6 +296,19 @@ void draw(){
       case 'r':
          reset();
          break;
+      case 'b':
+        if (draw_bmus == true){
+        draw_bmus = false;
+        delay(50);
+        break;
+        }
+
+        else{
+        draw_bmus = true;
+        delay(50);
+        break;
+        }
+
         
     }
   
@@ -289,6 +323,8 @@ void draw(){
    draw_text();
    draw_squares();
    draw_u_matrix();
+
+   if (draw_bmus)
    draw_bmu_locations();
  }
 
