@@ -14,8 +14,6 @@ int current_iteration = 1;
 int num_training_colors = 30;
 float learning_rate = .1;
 float learning_radius = (n/10)/2;
-float radius_reduction = learning_radius/iterations;
-float learning_reduction = ((1 + learning_rate)/iterations) - 1;
 float time;
 
 // flag variables
@@ -23,7 +21,12 @@ boolean run = false;
 boolean scalability_test = false;
 boolean draw_bmus = true;
 
-color[] training_colors = new color[num_training_colors]; // storing the training colors
+// SOM metrics
+float topographical_error;
+float quantization_error;
+
+// storing the training colors
+color[] training_colors = new color[num_training_colors]; 
 
 
 // initialize the pallete to be nxm with extra room for stats at the bottom
@@ -48,10 +51,17 @@ void setup(){
 void train(color c, int t){
   
   // set first bmu to the first SOM cell
-  float[] values = {som[0][0].r, red(c)/255, som[0][0].g, green(c)/255, som[0][0].b, blue(c)/255};
-  float bmu = euclidean_distance(values);
   Cell training_cell = new Cell(red(c)/255, green(c)/255, blue(c)/255);
+  float bmu = som[0][0].get_euclidean_distance(training_cell);
 
+  
+  // calculate SOM metrics every time we have trained on all colors and at the end of trainig
+  if (current_iteration % num_training_colors == 0 || current_iteration == iterations){
+    calc_som_metrics();
+  }
+  
+
+  // remember bmu location
   int x = 0;
   int y = 0;
   
@@ -63,7 +73,8 @@ void train(color c, int t){
   // get distance for each node updating the best matching unit
   for(int i = 0; i < n/10; i++){
    for(int j = 0; j < m/10; j++){
-     float new_bmu = euclidean_distance(new float[]{som[i][j].r, red(c)/255, som[i][j].g, green(c)/255, som[i][j].b, blue(c)/255});
+     
+     float new_bmu = som[i][j].get_euclidean_distance(training_cell);
       
       // new bmu found
      if(new_bmu < bmu){
@@ -72,6 +83,7 @@ void train(color c, int t){
       y = j;
     }
    }
+
   }
   
   // save bmu locations so that we can show the user
@@ -83,14 +95,13 @@ void train(color c, int t){
   for(int i = 0; i < n/10; i++){
    for(int j = 0; j < m/10; j++){
      
+     // physical distance between nodes on the grid
      float radius = euclidean_distance(new float[]{i,x,j,y});
      if(radius < learning_radius_t){
+
        float rate = learning_rate_t * (1/(radius + 1));
        som[i][j].update(training_cell, rate);
        
-       fill(som[i][j].r * 255, som[i][j].g * 255, som[i][j].b * 255);
-       stroke(0);
-       rect(i*10,j*10,10,10);
        
      }
    }
@@ -241,10 +252,69 @@ void calc_u_matrix_values(){
   }
 }
 
+void calc_som_metrics(){
+
+  // initialize sum variables
+  int not_close_nodes = 0;
+  float sum_euclidean_distance = 0;
+
+  // find BMU and second BMU for all training colors
+  for (color c : training_colors){
+
+    Cell training_cell = new Cell(red(c)/255, green(c)/255, blue(c)/255);
+    float bmu = som[0][0].get_euclidean_distance(training_cell);
+    float second_bmu = 0;
+    int bmu_x = 0;
+    int bmu_y = 0;
+    int second_bmu_x = 0; 
+    int second_bmu_y = 0;
+
+    for(int i = 0; i < n/10; i++){
+      for(int j = 0; j < m/10; j++){
+     
+        float new_bmu = som[i][j].get_euclidean_distance(training_cell);
+      
+        // new bmu found, save old bmu
+        if(new_bmu < bmu){
+         second_bmu = bmu;
+
+         second_bmu_x = bmu_x;
+         second_bmu_y = bmu_y;
+
+         bmu = new_bmu;
+
+         bmu_x = i;
+         bmu_y = j;
+
+        }
+      }   
+    }
+
+    // record bmu distance
+    sum_euclidean_distance += bmu;
+
+    // determine if first and second bmu are next to one another
+    int x_diff = abs(bmu_x - second_bmu_x);
+    int y_diff = abs(bmu_y - second_bmu_y);
+
+    // if not, add one to the tally
+    if (!((x_diff <= 1 && y_diff == 0) || (x_diff == 0 && y_diff <= 1) || (x_diff == 1 && y_diff == 1))){
+      not_close_nodes += 1;
+    }
+  }
+
+  // average the sums to finish the equation
+  quantization_error = (1/float(num_training_colors)) * sum_euclidean_distance;
+  topographical_error = (1/float(num_training_colors)) * not_close_nodes;
+
+}
+
 void reset(){
   
   current_iteration = 1;
   run = false;
+
+
   
   // choose new training colors
   for(int i = 0; i < num_training_colors; i++){
@@ -272,6 +342,7 @@ void reset(){
     }
   }
   
+  // drawing calls
   calc_u_matrix_values();
   draw_u_matrix();
   draw_training_colors();
@@ -284,30 +355,28 @@ void reset(){
 
 
 void draw(){
-  
+  // user input
   if(keyPressed) {
     switch(key){
+
+      // start training the SOM
       case '1':
         if(!run){
           run = !run;
           time = millis();
         }
         break;
+
+      // reset the SOM
       case 'r':
          reset();
          break;
-      case 'b':
-        if (draw_bmus == true){
-        draw_bmus = false;
-        delay(50);
-        break;
-        }
 
-        else{
-        draw_bmus = true;
-        delay(50);
+      // toggle the bmu indicators
+      case 'b':
+        draw_bmus = !draw_bmus;
+        delay(100);
         break;
-        }
 
         
     }
@@ -315,17 +384,37 @@ void draw(){
    
  }
  
- if(run && current_iteration < iterations){
+ // during training
+ if(run && current_iteration <= iterations){
+
+   // run the iteration
    train(training_colors[current_iteration%(num_training_colors)], current_iteration);
+
+   // update the I-matrix
    calc_u_matrix_values();
-   current_iteration += 1;
    
+   // draw the text, SOM, and U-matrix
    draw_text();
    draw_squares();
    draw_u_matrix();
 
+   // draw the bmus if toggled
    if (draw_bmus)
    draw_bmu_locations();
+
+   // update the current iteration
+   current_iteration += 1;
+ } 
+ else // after training we can still modify the gui
+ {
+   //draw_text(); we dont draw text anymore so that the timer "stops"
+   draw_squares();
+   draw_u_matrix();
+
+   if (draw_bmus && current_iteration > 1)
+   draw_bmu_locations();
+
  }
+ 
 
 }

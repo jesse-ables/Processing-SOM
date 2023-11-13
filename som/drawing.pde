@@ -2,7 +2,7 @@
 // draws the squares
 void draw_squares(){
   fill(0);
-  rect(0,0,n,m);
+  rect(0,0,n*2+10,m);
   stroke(0);
   for(int i = 0; i < n; i = i + 10){
     for(int j = 0; j < m; j = j + 10){
@@ -17,7 +17,7 @@ void draw_squares(){
 void draw_text(){
   fill(0);
   noStroke();
-  rect(n/2, m, n/2, 100);
+  rect(n/2, m, n*2, 100);
   fill(230);
   
   textSize(12);
@@ -25,6 +25,10 @@ void draw_text(){
   text("lr: " + nf((learning_rate/iterations) * (iterations - current_iteration), 0,5) + "\n" +
   "Iteration: " + str(current_iteration) + "/" + str(iterations) + "\n" +
   "Radius: " + nf((learning_radius/iterations) * (iterations - current_iteration), 0,5), n - 100, m+15);
+
+
+  text("Quantization Error: " + nf(quantization_error, 0,5) + "\n" +
+  "Topographical Error: " + nf(topographical_error, 0,5), n + 10, m+15);
   
   if(!run){
     text("Run (1) " + "\n" +
@@ -67,6 +71,7 @@ void draw_bmu_locations(){
     fill(training_colors[i]);
     
     // up left
+    // should ignore full left side and top
     if(x_loc >= 20 && y_loc >= 20){
       line(x_loc + 5, y_loc + 5, x_loc, y_loc);
       rect(x_loc - 15, y_loc - 15, 15,15);
@@ -74,15 +79,16 @@ void draw_bmu_locations(){
       line(x_loc_u_matrix + 5, y_loc + 5, x_loc_u_matrix, y_loc);
       rect(x_loc_u_matrix - 15, y_loc - 15, 15,15);
     }
-    // up right
-    else if(x_loc < 20 && y_loc > 20){
+    // up right || left side
+    // should ignore top left corner
+    else if(x_loc < 20 && y_loc >= 20){
       line(x_loc + 5, y_loc + 5, x_loc + 10, y_loc);
       rect(x_loc + 10, y_loc - 15, 15,15);
 
       line(x_loc_u_matrix + 5, y_loc + 5, x_loc_u_matrix + 10, y_loc);
       rect(x_loc_u_matrix + 10, y_loc - 15, 15,15);
     }
-    // down right
+    // down right position for top left corner
     else if(x_loc < 20 && y_loc < 20){
       line(x_loc + 5, y_loc + 5, x_loc + 10, y_loc+10);
       rect(x_loc + 10, y_loc + 10, 15,15);
